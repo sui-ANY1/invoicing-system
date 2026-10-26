@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.EnterpriseContactMapper">
+    
+    <resultMap type="EnterpriseContact" id="EnterpriseContactResult">
+        <result property="contactId"    column="contact_id"    />
+        <result property="enterpriseId"    column="enterprise_id"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="contactIdentity"    column="contact_identity"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="idType"    column="id_type"    />
+        <result property="idCard"    column="id_card"    />
+        <result property="phone"    column="phone"    />
+        <result property="idCardUrl"    column="id_card_url"    />
+        <result property="proxyBookUrl"    column="proxy_book_url"    />
+        <result property="authScope"    column="auth_scope"    />
+        <result property="authStartDate"    column="auth_start_date"    />
+        <result property="authEndDate"    column="auth_end_date"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectEnterpriseContactVo">
+        select contact_id, enterprise_id, member_id, contact_identity, contact_name, id_type, id_card, phone, id_card_url, proxy_book_url, auth_scope, auth_start_date, auth_end_date, del_flag, create_by, create_time, update_by, update_time, remark from t_enterprise_contact
+    </sql>
+
+    <select id="selectEnterpriseContactList" parameterType="EnterpriseContact" resultMap="EnterpriseContactResult">
+        <include refid="selectEnterpriseContactVo"/>
+        <where>  
+            <if test="enterpriseId != null "> and enterprise_id = #{enterpriseId}</if>
+            <if test="memberId != null "> and member_id = #{memberId}</if>
+            <if test="contactIdentity != null  and contactIdentity != ''"> and contact_identity = #{contactIdentity}</if>
+            <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+            <if test="idType != null  and idType != ''"> and id_type = #{idType}</if>
+            <if test="idCard != null  and idCard != ''"> and id_card = #{idCard}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="idCardUrl != null  and idCardUrl != ''"> and id_card_url = #{idCardUrl}</if>
+            <if test="proxyBookUrl != null  and proxyBookUrl != ''"> and proxy_book_url = #{proxyBookUrl}</if>
+            <if test="authScope != null  and authScope != ''"> and auth_scope = #{authScope}</if>
+            <if test="authStartDate != null "> and auth_start_date = #{authStartDate}</if>
+            <if test="authEndDate != null "> and auth_end_date = #{authEndDate}</if>
+        </where>
+    </select>
+    
+    <select id="selectEnterpriseContactByContactId" parameterType="Long" resultMap="EnterpriseContactResult">
+        <include refid="selectEnterpriseContactVo"/>
+        where contact_id = #{contactId}
+    </select>
+
+    <insert id="insertEnterpriseContact" parameterType="EnterpriseContact" useGeneratedKeys="true" keyProperty="contactId">
+        insert into t_enterprise_contact
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="enterpriseId != null">enterprise_id,</if>
+            <if test="memberId != null">member_id,</if>
+            <if test="contactIdentity != null">contact_identity,</if>
+            <if test="contactName != null and contactName != ''">contact_name,</if>
+            <if test="idType != null">id_type,</if>
+            <if test="idCard != null">id_card,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="idCardUrl != null">id_card_url,</if>
+            <if test="proxyBookUrl != null">proxy_book_url,</if>
+            <if test="authScope != null">auth_scope,</if>
+            <if test="authStartDate != null">auth_start_date,</if>
+            <if test="authEndDate != null">auth_end_date,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="enterpriseId != null">#{enterpriseId},</if>
+            <if test="memberId != null">#{memberId},</if>
+            <if test="contactIdentity != null">#{contactIdentity},</if>
+            <if test="contactName != null and contactName != ''">#{contactName},</if>
+            <if test="idType != null">#{idType},</if>
+            <if test="idCard != null">#{idCard},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="idCardUrl != null">#{idCardUrl},</if>
+            <if test="proxyBookUrl != null">#{proxyBookUrl},</if>
+            <if test="authScope != null">#{authScope},</if>
+            <if test="authStartDate != null">#{authStartDate},</if>
+            <if test="authEndDate != null">#{authEndDate},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEnterpriseContact" parameterType="EnterpriseContact">
+        update t_enterprise_contact
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="enterpriseId != null">enterprise_id = #{enterpriseId},</if>
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="contactIdentity != null">contact_identity = #{contactIdentity},</if>
+            <if test="contactName != null and contactName != ''">contact_name = #{contactName},</if>
+            <if test="idType != null">id_type = #{idType},</if>
+            <if test="idCard != null">id_card = #{idCard},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="idCardUrl != null">id_card_url = #{idCardUrl},</if>
+            <if test="proxyBookUrl != null">proxy_book_url = #{proxyBookUrl},</if>
+            <if test="authScope != null">auth_scope = #{authScope},</if>
+            <if test="authStartDate != null">auth_start_date = #{authStartDate},</if>
+            <if test="authEndDate != null">auth_end_date = #{authEndDate},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where contact_id = #{contactId}
+    </update>
+
+    <delete id="deleteEnterpriseContactByContactId" parameterType="Long">
+        delete from t_enterprise_contact where contact_id = #{contactId}
+    </delete>
+
+    <delete id="deleteEnterpriseContactByContactIds" parameterType="String">
+        delete from t_enterprise_contact where contact_id in 
+        <foreach item="contactId" collection="array" open="(" separator="," close=")">
+            #{contactId}
+        </foreach>
+    </delete>
+</mapper>

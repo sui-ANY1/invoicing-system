@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AuditRecordMapper">
+    
+    <resultMap type="AuditRecord" id="AuditRecordResult">
+        <result property="auditRecordId"    column="audit_record_id"    />
+        <result property="bizType"    column="biz_type"    />
+        <result property="bizId"    column="biz_id"    />
+        <result property="bizVersion"    column="biz_version"    />
+        <result property="auditBy"    column="audit_by"    />
+        <result property="auditResult"    column="audit_result"    />
+        <result property="auditOpinion"    column="audit_opinion"    />
+        <result property="auditTime"    column="audit_time"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectAuditRecordVo">
+        select audit_record_id, biz_type, biz_id, biz_version, audit_by, audit_result, audit_opinion, audit_time, create_time from t_audit_record
+    </sql>
+
+    <select id="selectAuditRecordList" parameterType="AuditRecord" resultMap="AuditRecordResult">
+        <include refid="selectAuditRecordVo"/>
+        <where>  
+            <if test="bizType != null  and bizType != ''"> and biz_type = #{bizType}</if>
+            <if test="bizId != null "> and biz_id = #{bizId}</if>
+            <if test="bizVersion != null "> and biz_version = #{bizVersion}</if>
+            <if test="auditBy != null  and auditBy != ''"> and audit_by = #{auditBy}</if>
+            <if test="auditResult != null  and auditResult != ''"> and audit_result = #{auditResult}</if>
+            <if test="auditOpinion != null  and auditOpinion != ''"> and audit_opinion = #{auditOpinion}</if>
+            <if test="auditTime != null "> and audit_time = #{auditTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectAuditRecordByAuditRecordId" parameterType="Long" resultMap="AuditRecordResult">
+        <include refid="selectAuditRecordVo"/>
+        where audit_record_id = #{auditRecordId}
+    </select>
+
+    <insert id="insertAuditRecord" parameterType="AuditRecord" useGeneratedKeys="true" keyProperty="auditRecordId">
+        insert into t_audit_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bizType != null">biz_type,</if>
+            <if test="bizId != null">biz_id,</if>
+            <if test="bizVersion != null">biz_version,</if>
+            <if test="auditBy != null and auditBy != ''">audit_by,</if>
+            <if test="auditResult != null">audit_result,</if>
+            <if test="auditOpinion != null">audit_opinion,</if>
+            <if test="auditTime != null">audit_time,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bizType != null">#{bizType},</if>
+            <if test="bizId != null">#{bizId},</if>
+            <if test="bizVersion != null">#{bizVersion},</if>
+            <if test="auditBy != null and auditBy != ''">#{auditBy},</if>
+            <if test="auditResult != null">#{auditResult},</if>
+            <if test="auditOpinion != null">#{auditOpinion},</if>
+            <if test="auditTime != null">#{auditTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAuditRecord" parameterType="AuditRecord">
+        update t_audit_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bizType != null">biz_type = #{bizType},</if>
+            <if test="bizId != null">biz_id = #{bizId},</if>
+            <if test="bizVersion != null">biz_version = #{bizVersion},</if>
+            <if test="auditBy != null and auditBy != ''">audit_by = #{auditBy},</if>
+            <if test="auditResult != null">audit_result = #{auditResult},</if>
+            <if test="auditOpinion != null">audit_opinion = #{auditOpinion},</if>
+            <if test="auditTime != null">audit_time = #{auditTime},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where audit_record_id = #{auditRecordId}
+    </update>
+
+    <delete id="deleteAuditRecordByAuditRecordId" parameterType="Long">
+        delete from t_audit_record where audit_record_id = #{auditRecordId}
+    </delete>
+
+    <delete id="deleteAuditRecordByAuditRecordIds" parameterType="String">
+        delete from t_audit_record where audit_record_id in 
+        <foreach item="auditRecordId" collection="array" open="(" separator="," close=")">
+            #{auditRecordId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RegCompanyMapper">
+    
+    <resultMap type="RegCompany" id="RegCompanyResult">
+        <result property="companyId"    column="company_id"    />
+        <result property="regApplyId"    column="reg_apply_id"    />
+        <result property="proposedName"    column="proposed_name"    />
+        <result property="alternateNames"    column="alternate_names"    />
+        <result property="registeredCapital"    column="registered_capital"    />
+        <result property="businessScope"    column="business_scope"    />
+        <result property="legalPersonName"    column="legal_person_name"    />
+        <result property="legalPersonIdType"    column="legal_person_id_type"    />
+        <result property="legalPersonIdCard"    column="legal_person_id_card"    />
+        <result property="legalPersonPhone"    column="legal_person_phone"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRegCompanyVo">
+        select company_id, reg_apply_id, proposed_name, alternate_names, registered_capital, business_scope, legal_person_name, legal_person_id_type, legal_person_id_card, legal_person_phone, create_time, update_time from t_reg_company
+    </sql>
+
+    <select id="selectRegCompanyList" parameterType="RegCompany" resultMap="RegCompanyResult">
+        <include refid="selectRegCompanyVo"/>
+        <where>  
+            <if test="regApplyId != null "> and reg_apply_id = #{regApplyId}</if>
+            <if test="proposedName != null  and proposedName != ''"> and proposed_name like concat('%', #{proposedName}, '%')</if>
+            <if test="alternateNames != null  and alternateNames != ''"> and alternate_names = #{alternateNames}</if>
+            <if test="registeredCapital != null "> and registered_capital = #{registeredCapital}</if>
+            <if test="businessScope != null  and businessScope != ''"> and business_scope = #{businessScope}</if>
+            <if test="legalPersonName != null  and legalPersonName != ''"> and legal_person_name like concat('%', #{legalPersonName}, '%')</if>
+            <if test="legalPersonIdType != null  and legalPersonIdType != ''"> and legal_person_id_type = #{legalPersonIdType}</if>
+            <if test="legalPersonIdCard != null  and legalPersonIdCard != ''"> and legal_person_id_card = #{legalPersonIdCard}</if>
+            <if test="legalPersonPhone != null  and legalPersonPhone != ''"> and legal_person_phone = #{legalPersonPhone}</if>
+        </where>
+    </select>
+    
+    <select id="selectRegCompanyByCompanyId" parameterType="Long" resultMap="RegCompanyResult">
+        <include refid="selectRegCompanyVo"/>
+        where company_id = #{companyId}
+    </select>
+
+    <insert id="insertRegCompany" parameterType="RegCompany" useGeneratedKeys="true" keyProperty="companyId">
+        insert into t_reg_company
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regApplyId != null">reg_apply_id,</if>
+            <if test="proposedName != null">proposed_name,</if>
+            <if test="alternateNames != null">alternate_names,</if>
+            <if test="registeredCapital != null">registered_capital,</if>
+            <if test="businessScope != null">business_scope,</if>
+            <if test="legalPersonName != null">legal_person_name,</if>
+            <if test="legalPersonIdType != null">legal_person_id_type,</if>
+            <if test="legalPersonIdCard != null">legal_person_id_card,</if>
+            <if test="legalPersonPhone != null">legal_person_phone,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regApplyId != null">#{regApplyId},</if>
+            <if test="proposedName != null">#{proposedName},</if>
+            <if test="alternateNames != null">#{alternateNames},</if>
+            <if test="registeredCapital != null">#{registeredCapital},</if>
+            <if test="businessScope != null">#{businessScope},</if>
+            <if test="legalPersonName != null">#{legalPersonName},</if>
+            <if test="legalPersonIdType != null">#{legalPersonIdType},</if>
+            <if test="legalPersonIdCard != null">#{legalPersonIdCard},</if>
+            <if test="legalPersonPhone != null">#{legalPersonPhone},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRegCompany" parameterType="RegCompany">
+        update t_reg_company
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="regApplyId != null">reg_apply_id = #{regApplyId},</if>
+            <if test="proposedName != null">proposed_name = #{proposedName},</if>
+            <if test="alternateNames != null">alternate_names = #{alternateNames},</if>
+            <if test="registeredCapital != null">registered_capital = #{registeredCapital},</if>
+            <if test="businessScope != null">business_scope = #{businessScope},</if>
+            <if test="legalPersonName != null">legal_person_name = #{legalPersonName},</if>
+            <if test="legalPersonIdType != null">legal_person_id_type = #{legalPersonIdType},</if>
+            <if test="legalPersonIdCard != null">legal_person_id_card = #{legalPersonIdCard},</if>
+            <if test="legalPersonPhone != null">legal_person_phone = #{legalPersonPhone},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where company_id = #{companyId}
+    </update>
+
+    <delete id="deleteRegCompanyByCompanyId" parameterType="Long">
+        delete from t_reg_company where company_id = #{companyId}
+    </delete>
+
+    <delete id="deleteRegCompanyByCompanyIds" parameterType="String">
+        delete from t_reg_company where company_id in 
+        <foreach item="companyId" collection="array" open="(" separator="," close=")">
+            #{companyId}
+        </foreach>
+    </delete>
+</mapper>

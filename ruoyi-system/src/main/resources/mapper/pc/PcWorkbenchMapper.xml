@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.pc.mapper.PcWorkbenchMapper">
+
+    <!-- D01 待办聚合：多来源合并为一张列表，type 区分五类待办，statusKind 指明状态字典来源 -->
+    <select id="selectTodoList" resultType="com.ruoyi.system.pc.vo.PcTodoItemVO">
+        select * from (
+            <!-- 待审核：开票申请（已提交 / 待税务验证） -->
+            select 'audit' as type, '1' as bizType, a.apply_id as bizId, a.apply_no as bizNo,
+                   a.enterprise_id as enterpriseId, e.enterprise_name as enterpriseName,
+                   a.apply_status as status, a.buyer_name as buyerName,
+                   a.create_time as createTime, null as nextQueryTime, 'apply' as statusKind
+              from t_invoice_apply a
+              left join t_enterprise e on e.enterprise_id = a.enterprise_id
+             where a.del_flag = '0' and a.apply_status in ('0', '1')
+               and ifnull((select ar.audit_result from t_audit_record ar
+                            where ar.biz_type = '2' and ar.biz_id = a.apply_id
+                            order by ar.audit_time desc, ar.audit_record_id desc limit 1), '') != '2'
+            union all
+            <!-- 待审核：红字申请待审核 / 确认到期 -->
+            select 'audit' as type, '2' as bizType, r.red_apply_id as bizId, r.red_apply_no as bizNo,
+                   o.enterprise_id as enterpriseId, e.enterprise_name as enterpriseName,
+                   r.red_status as status, o.buyer_name as buyerName,
+                   r.create_time as createTime, r.confirm_expire_time as nextQueryTime, 'red' as statusKind
+              from t_red_apply r
+              left join t_invoice o on o.invoice_id = r.original_invoice_id
+              left join t_enterprise e on e.enterprise_id = o.enterprise_id
+             where r.del_flag = '0' and r.red_status in ('0', '2')
+               and ifnull((select ar.audit_result from t_audit_record ar
+                            where ar.biz_type = '3' and ar.biz_id = r.red_apply_id
+                            order by ar.audit_time desc, ar.audit_record_id desc limit 1), '') != '2'
+            union all
+            <!-- 需补资料：最新审核结论为「要求补充」且申请未终结（开票） -->
+            select 'material' as type, '1' as bizType, a.apply_id as bizId, a.apply_no as bizNo,
+                   a.enterprise_id as enterpriseId, e.enterprise_name as enterpriseName,
+                   a.apply_status as status, a.buyer_name as buyerName,
+                   a.create_time as createTime, null as nextQueryTime, 'apply' as statusKind
+              from t_invoice_apply a
+              left join t_enterprise e on e.enterprise_id = a.enterprise_id
+             where a.del_flag = '0' and a.apply_status not in ('5', '6', '7')
+               and (select ar.audit_result from t_audit_record ar
+                     where ar.biz_type = '2' and ar.biz_id = a.apply_id
+                     order by ar.audit_time desc, ar.audit_record_id desc limit 1) = '2'
+            union all
+            <!-- 需补资料：最新审核结论为「要求补充」且红字未终结 -->
+            select 'material' as type, '2' as bizType, r.red_apply_id as bizId, r.red_apply_no as bizNo,
+                   o.enterprise_id as enterpriseId, e.enterprise_name as enterpriseName,
+                   r.red_status as status, o.buyer_name as buyerName,
+                   r.create_time as createTime, null as nextQueryTime, 'red' as statusKind
+              from t_red_apply r
+              left join t_invoice o on o.invoice_id = r.original_invoice_id
+              left join t_enterprise e on e.enterprise_id = o.enterprise_id
+             where r.del_flag = '0' and r.red_status not in ('5', '6', '7')
+               and (select ar.audit_result from t_audit_record ar
+                     where ar.biz_type = '3' and ar.biz_id = r.red_apply_id
+                     order by ar.audit_time desc, ar.audit_record_id desc limit 1) = '2'
+            union all
+            <!-- 待用户操作：RPA 任务待用户验证（蓝字/红字都归位到所属企业） -->
+            select 'user' as type, t.biz_type as bizType, t.biz_id as bizId, t.task_no as bizNo,
+                   ifnull(a.enterprise_id, o.enterprise_id) as enterpriseId, e.enterprise_name as enterpriseName,
+                   t.task_status as status, ifnull(a.buyer_name, o.buyer_name) as buyerName,
+                   t.create_time as createTime, t.next_query_time as nextQueryTime, 'rpa' as statusKind
+              from t_rpa_task t
+              left join t_invoice_apply a on a.apply_id = t.biz_id and t.biz_type = '1'
+              left join t_red_apply r on r.red_apply_id = t.biz_id and t.biz_type = '2'
+              left join t_invoice o on o.invoice_id = r.original_invoice_id
+              left join t_enterprise e on e.enterprise_id = ifnull(a.enterprise_id, o.enterprise_id)
+             where t.task_status = '1'
+            union all
+            <!-- 待用户操作：税务验证待提交 / 待验证（红字验证回溯到原蓝票） -->
+            select 'user' as type, v.biz_type as bizType, v.biz_id as bizId,
+                   ifnull(a.apply_no, r.red_apply_no) as bizNo,
+                   ifnull(a.enterprise_id, o.enterprise_id) as enterpriseId, e.enterprise_name as enterpriseName,
+                   v.verify_status as status, ifnull(a.buyer_name, o.buyer_name) as buyerName,
+                   v.create_time as createTime, v.expire_time as nextQueryTime, 'verify' as statusKind
+              from t_tax_verify v
+              left join t_invoice_apply a on a.apply_id = v.biz_id and v.biz_type = '1'
+              left join t_red_apply r on r.red_apply_id = v.biz_id and v.biz_type = '2'
+              left join t_invoice o on o.invoice_id = r.original_invoice_id
+              left join t_enterprise e on e.enterprise_id = ifnull(a.enterprise_id, o.enterprise_id)
+             where v.verify_status in ('0', '1')
+            union all
+            <!-- 结果未知：RPA 结果待核对（只查询，不重开） -->
+            select 'unknown' as type, t.biz_type as bizType, t.biz_id as bizId, t.task_no as bizNo,
+                   ifnull(a.enterprise_id, o.enterprise_id) as enterpriseId, e.enterprise_name as enterpriseName,
+                   t.task_status as status, ifnull(a.buyer_name, o.buyer_name) as buyerName,
+                   t.create_time as createTime, t.next_query_time as nextQueryTime, 'rpa' as statusKind
+              from t_rpa_task t
+              left join t_invoice_apply a on a.apply_id = t.biz_id and t.biz_type = '1'
+              left join t_red_apply r on r.red_apply_id = t.biz_id and t.biz_type = '2'
+              left join t_invoice o on o.invoice_id = r.original_invoice_id
+              left join t_enterprise e on e.enterprise_id = ifnull(a.enterprise_id, o.enterprise_id)
+             where t.task_status = '3'
+            union all
+            <!-- 结果未知：开票申请处于结果核对中 -->
+            select 'unknown' as type, '1' as bizType, a.apply_id as bizId, a.apply_no as bizNo,
+                   a.enterprise_id as enterpriseId, e.enterprise_name as enterpriseName,
+                   a.apply_status as status, a.buyer_name as buyerName,
+                   a.create_time as createTime, null as nextQueryTime, 'apply' as statusKind
+              from t_invoice_apply a
+              left join t_enterprise e on e.enterprise_id = a.enterprise_id
+             where a.del_flag = '0' and a.apply_status = '3'
+            union all
+            <!-- 结果未知：红字申请处于结果核对中 -->
+            select 'unknown' as type, '2' as bizType, r.red_apply_id as bizId, r.red_apply_no as bizNo,
+                   o.enterprise_id as enterpriseId, e.enterprise_name as enterpriseName,
+                   r.red_status as status, o.buyer_name as buyerName,
+                   r.create_time as createTime, null as nextQueryTime, 'red' as statusKind
+              from t_red_apply r
+              left join t_invoice o on o.invoice_id = r.original_invoice_id
+              left join t_enterprise e on e.enterprise_id = o.enterprise_id
+             where r.del_flag = '0' and r.red_status = '3'
+        ) todo
+        <where>
+            <if test="q.type != null and q.type != ''">and todo.type = #{q.type}</if>
+            <if test="q.status != null and q.status != ''">and todo.status = #{q.status}</if>
+            <if test="q.keyword != null and q.keyword != ''">
+                and (todo.bizNo like concat('%', #{q.keyword}, '%')
+                     or todo.enterpriseName like concat('%', #{q.keyword}, '%')
+                     or todo.buyerName like concat('%', #{q.keyword}, '%'))
+            </if>
+            <if test="q.startTime != null and q.startTime != ''">and todo.createTime &gt;= #{q.startTime}</if>
+            <if test="q.endTime != null and q.endTime != ''">and todo.createTime &lt;= #{q.endTime}</if>
+        </where>
+        order by todo.createTime desc
+    </select>
+
+    <!-- 待审核：开票申请待审核 + 红字申请待审核 / 确认到期 -->
+    <select id="countPendingAudit" resultType="long">
+        select (select count(1) from t_invoice_apply a
+                 where a.del_flag = '0' and a.apply_status in ('0', '1')
+                   and ifnull((select ar.audit_result from t_audit_record ar
+                                where ar.biz_type = '2' and ar.biz_id = a.apply_id
+                                order by ar.audit_time desc, ar.audit_record_id desc limit 1), '') != '2')
+             + (select count(1) from t_red_apply r
+                 where r.del_flag = '0' and r.red_status in ('0', '2')
+                   and ifnull((select ar.audit_result from t_audit_record ar
+                                where ar.biz_type = '3' and ar.biz_id = r.red_apply_id
+                                order by ar.audit_time desc, ar.audit_record_id desc limit 1), '') != '2')
+    </select>
+
+    <!-- 需补资料：最新审核结论为「要求补充」且未终结 -->
+    <select id="countNeedMaterial" resultType="long">
+        select (select count(1) from t_invoice_apply a
+                 where a.del_flag = '0' and a.apply_status not in ('5', '6', '7')
+                   and (select ar.audit_result from t_audit_record ar
+                         where ar.biz_type = '2' and ar.biz_id = a.apply_id
+                         order by ar.audit_time desc, ar.audit_record_id desc limit 1) = '2')
+             + (select count(1) from t_red_apply r
+                 where r.del_flag = '0' and r.red_status not in ('5', '6', '7')
+                   and (select ar.audit_result from t_audit_record ar
+                         where ar.biz_type = '3' and ar.biz_id = r.red_apply_id
+                         order by ar.audit_time desc, ar.audit_record_id desc limit 1) = '2')
+    </select>
+
+    <!-- 待用户操作：RPA 待用户验证 + 税务验证待提交/待验证 -->
+    <select id="countWaitingUser" resultType="long">
+        select (select count(1) from t_rpa_task where task_status = '1')
+             + (select count(1) from t_tax_verify where verify_status in ('0', '1'))
+    </select>
+
+    <!-- 结果未知：RPA 结果待核对 + 申请结果核对中 -->
+    <select id="countUnknownResult" resultType="long">
+        select (select count(1) from t_rpa_task where task_status = '3')
+             + (select count(1) from t_invoice_apply where del_flag = '0' and apply_status = '3')
+             + (select count(1) from t_red_apply where del_flag = '0' and red_status = '3')
+    </select>
+
+</mapper>

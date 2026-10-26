@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RegShareholderMapper">
+    
+    <resultMap type="RegShareholder" id="RegShareholderResult">
+        <result property="shareholderId"    column="shareholder_id"    />
+        <result property="regApplyId"    column="reg_apply_id"    />
+        <result property="shareholderType"    column="shareholder_type"    />
+        <result property="shareholderName"    column="shareholder_name"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="holdRatio"    column="hold_ratio"    />
+        <result property="qualificationUrl"    column="qualification_url"    />
+        <result property="sortNo"    column="sort_no"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRegShareholderVo">
+        select shareholder_id, reg_apply_id, shareholder_type, shareholder_name, contact_phone, hold_ratio, qualification_url, sort_no, create_time, update_time from t_reg_shareholder
+    </sql>
+
+    <select id="selectRegShareholderList" parameterType="RegShareholder" resultMap="RegShareholderResult">
+        <include refid="selectRegShareholderVo"/>
+        <where>  
+            <if test="regApplyId != null "> and reg_apply_id = #{regApplyId}</if>
+            <if test="shareholderType != null  and shareholderType != ''"> and shareholder_type = #{shareholderType}</if>
+            <if test="shareholderName != null  and shareholderName != ''"> and shareholder_name like concat('%', #{shareholderName}, '%')</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+            <if test="holdRatio != null "> and hold_ratio = #{holdRatio}</if>
+            <if test="qualificationUrl != null  and qualificationUrl != ''"> and qualification_url = #{qualificationUrl}</if>
+            <if test="sortNo != null "> and sort_no = #{sortNo}</if>
+        </where>
+    </select>
+    
+    <select id="selectRegShareholderByShareholderId" parameterType="Long" resultMap="RegShareholderResult">
+        <include refid="selectRegShareholderVo"/>
+        where shareholder_id = #{shareholderId}
+    </select>
+
+    <insert id="insertRegShareholder" parameterType="RegShareholder" useGeneratedKeys="true" keyProperty="shareholderId">
+        insert into t_reg_shareholder
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regApplyId != null">reg_apply_id,</if>
+            <if test="shareholderType != null">shareholder_type,</if>
+            <if test="shareholderName != null and shareholderName != ''">shareholder_name,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="holdRatio != null">hold_ratio,</if>
+            <if test="qualificationUrl != null">qualification_url,</if>
+            <if test="sortNo != null">sort_no,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regApplyId != null">#{regApplyId},</if>
+            <if test="shareholderType != null">#{shareholderType},</if>
+            <if test="shareholderName != null and shareholderName != ''">#{shareholderName},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="holdRatio != null">#{holdRatio},</if>
+            <if test="qualificationUrl != null">#{qualificationUrl},</if>
+            <if test="sortNo != null">#{sortNo},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRegShareholder" parameterType="RegShareholder">
+        update t_reg_shareholder
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="regApplyId != null">reg_apply_id = #{regApplyId},</if>
+            <if test="shareholderType != null">shareholder_type = #{shareholderType},</if>
+            <if test="shareholderName != null and shareholderName != ''">shareholder_name = #{shareholderName},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="holdRatio != null">hold_ratio = #{holdRatio},</if>
+            <if test="qualificationUrl != null">qualification_url = #{qualificationUrl},</if>
+            <if test="sortNo != null">sort_no = #{sortNo},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where shareholder_id = #{shareholderId}
+    </update>
+
+    <delete id="deleteRegShareholderByShareholderId" parameterType="Long">
+        delete from t_reg_shareholder where shareholder_id = #{shareholderId}
+    </delete>
+
+    <delete id="deleteRegShareholderByShareholderIds" parameterType="String">
+        delete from t_reg_shareholder where shareholder_id in 
+        <foreach item="shareholderId" collection="array" open="(" separator="," close=")">
+            #{shareholderId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.pc.mapper.PcInvoiceStatsMapper">
+
+    <sql id="ticketColumns">
+        i.invoice_id as invoiceId, i.invoice_no as invoiceNo, i.invoice_code as invoiceCode,
+        i.invoice_kind as invoiceKind, i.apply_id as applyId, i.red_apply_id as redApplyId,
+        a.invoice_type as invoiceType, i.seller_name as sellerName, i.seller_tax_number as sellerTaxNumber,
+        i.buyer_name as buyerName, i.buyer_tax_number as buyerTaxNumber,
+        i.total_amount as totalAmount, i.total_tax as totalTax, i.total_price_tax as totalPriceTax,
+        i.invoice_date as invoiceDate, i.red_status as redStatus, i.file_status as fileStatus,
+        i.pdf_url as pdfUrl, i.ofd_url as ofdUrl, i.xml_url as xmlUrl, i.create_time as createTime
+    </sql>
+
+    <sql id="enterpriseDateFilter">
+        <if test="q.enterpriseId != null">and i.enterprise_id = #{q.enterpriseId}</if>
+        <if test="q.startDate != null and q.startDate != ''">and i.invoice_date &gt;= #{q.startDate}</if>
+        <if test="q.endDate != null and q.endDate != ''">and i.invoice_date &lt;= #{q.endDate}</if>
+    </sql>
+
+    <!-- 蓝红开票数量趋势：只统计真实发票，按实际开票日期归集，invoice_no 唯一保证同票只计一次 -->
+    <select id="selectTrend" resultType="com.ruoyi.system.pc.vo.PcInvoiceOverviewVO$TrendPoint">
+        select date_format(i.invoice_date,
+                 <choose>
+                     <when test="q.granularity != null and q.granularity.equals('day')">'%Y-%m-%d'</when>
+                     <otherwise>'%Y-%m'</otherwise>
+                 </choose>) as period,
+               sum(case when i.invoice_kind = '1' then 1 else 0 end) as blueCount,
+               sum(case when i.invoice_kind = '2' then 1 else 0 end) as redCount
+          from t_invoice i
+         where i.del_flag = '0' and i.invoice_date is not null
+        <include refid="enterpriseDateFilter"/>
+         group by period
+         order by period asc
+    </select>
+
+    <!-- 票种分布：仅蓝字，票种来自开票申请 -->
+    <select id="selectTypeDist" resultType="com.ruoyi.system.pc.vo.PcInvoiceOverviewVO$TypeDist">
+        select a.invoice_type as invoiceType, count(1) as count
+          from t_invoice i
+          left join t_invoice_apply a on a.apply_id = i.apply_id
+         where i.del_flag = '0' and i.invoice_kind = '1'
+        <include refid="enterpriseDateFilter"/>
+         group by a.invoice_type
+         order by a.invoice_type asc
+    </select>
+
+    <select id="countByKind" resultType="java.lang.Long">
+        select count(1)
+          from t_invoice i
+         where i.del_flag = '0' and i.invoice_kind = #{kind}
+        <include refid="enterpriseDateFilter"/>
+    </select>
+
+    <select id="sumPriceTax" resultType="java.math.BigDecimal">
+        select sum(i.total_price_tax)
+          from t_invoice i
+         where i.del_flag = '0' and i.total_price_tax is not null
+        <include refid="enterpriseDateFilter"/>
+    </select>
+
+    <!-- 一张真实发票一行（D07 列表 / D03 明细） -->
+    <select id="selectTicketList" resultType="com.ruoyi.system.pc.vo.PcInvoiceTicketVO">
+        select <include refid="ticketColumns"/>
+          from t_invoice i
+          left join t_invoice_apply a on a.apply_id = i.apply_id
+         where i.del_flag = '0'
+        <if test="q.enterpriseId != null">and i.enterprise_id = #{q.enterpriseId}</if>
+        <if test="q.invoiceKind != null and q.invoiceKind != ''">and i.invoice_kind = #{q.invoiceKind}</if>
+        <if test="q.fileStatus != null and q.fileStatus != ''">and i.file_status = #{q.fileStatus}</if>
+        <if test="q.applyId != null">and i.apply_id = #{q.applyId}</if>
+        <if test="q.keyword != null and q.keyword != ''">
+            and (i.invoice_no like concat('%', #{q.keyword}, '%')
+                 or a.apply_no like concat('%', #{q.keyword}, '%')
+                 or i.seller_name like concat('%', #{q.keyword}, '%')
+                 or i.buyer_name like concat('%', #{q.keyword}, '%'))
+        </if>
+        <if test="q.startDate != null and q.startDate != ''">and i.invoice_date &gt;= #{q.startDate}</if>
+        <if test="q.endDate != null and q.endDate != ''">and i.invoice_date &lt;= #{q.endDate}</if>
+         order by i.invoice_date desc, i.invoice_id desc
+    </select>
+
+    <select id="selectTicketById" resultType="com.ruoyi.system.pc.vo.PcInvoiceTicketVO">
+        select <include refid="ticketColumns"/>
+          from t_invoice i
+          left join t_invoice_apply a on a.apply_id = i.apply_id
+         where i.invoice_id = #{invoiceId}
+    </select>
+
+    <select id="selectTicketsByApplyId" resultType="com.ruoyi.system.pc.vo.PcInvoiceTicketVO">
+        select <include refid="ticketColumns"/>
+          from t_invoice i
+          left join t_invoice_apply a on a.apply_id = i.apply_id
+         where i.del_flag = '0' and i.apply_id = #{applyId}
+         order by i.invoice_id asc
+    </select>
+
+    <select id="selectTicketsByRedApplyId" resultType="com.ruoyi.system.pc.vo.PcInvoiceTicketVO">
+        select <include refid="ticketColumns"/>
+          from t_invoice i
+          left join t_invoice_apply a on a.apply_id = i.apply_id
+         where i.del_flag = '0' and i.red_apply_id = #{redApplyId}
+         order by i.invoice_id asc
+    </select>
+
+</mapper>

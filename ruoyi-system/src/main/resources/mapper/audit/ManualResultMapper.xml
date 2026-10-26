@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ManualResultMapper">
+    
+    <resultMap type="ManualResult" id="ManualResultResult">
+        <result property="resultId"    column="result_id"    />
+        <result property="bizType"    column="biz_type"    />
+        <result property="bizId"    column="biz_id"    />
+        <result property="fillBy"    column="fill_by"    />
+        <result property="actualResult"    column="actual_result"    />
+        <result property="voucherUrl"    column="voucher_url"    />
+        <result property="fillNote"    column="fill_note"    />
+        <result property="fillTime"    column="fill_time"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectManualResultVo">
+        select result_id, biz_type, biz_id, fill_by, actual_result, voucher_url, fill_note, fill_time, create_time from t_manual_result
+    </sql>
+
+    <select id="selectManualResultList" parameterType="ManualResult" resultMap="ManualResultResult">
+        <include refid="selectManualResultVo"/>
+        <where>  
+            <if test="bizType != null  and bizType != ''"> and biz_type = #{bizType}</if>
+            <if test="bizId != null "> and biz_id = #{bizId}</if>
+            <if test="fillBy != null  and fillBy != ''"> and fill_by = #{fillBy}</if>
+            <if test="actualResult != null  and actualResult != ''"> and actual_result = #{actualResult}</if>
+            <if test="voucherUrl != null  and voucherUrl != ''"> and voucher_url = #{voucherUrl}</if>
+            <if test="fillNote != null  and fillNote != ''"> and fill_note = #{fillNote}</if>
+            <if test="fillTime != null "> and fill_time = #{fillTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectManualResultByResultId" parameterType="Long" resultMap="ManualResultResult">
+        <include refid="selectManualResultVo"/>
+        where result_id = #{resultId}
+    </select>
+
+    <insert id="insertManualResult" parameterType="ManualResult" useGeneratedKeys="true" keyProperty="resultId">
+        insert into t_manual_result
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bizType != null">biz_type,</if>
+            <if test="bizId != null">biz_id,</if>
+            <if test="fillBy != null and fillBy != ''">fill_by,</if>
+            <if test="actualResult != null">actual_result,</if>
+            <if test="voucherUrl != null">voucher_url,</if>
+            <if test="fillNote != null">fill_note,</if>
+            <if test="fillTime != null">fill_time,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bizType != null">#{bizType},</if>
+            <if test="bizId != null">#{bizId},</if>
+            <if test="fillBy != null and fillBy != ''">#{fillBy},</if>
+            <if test="actualResult != null">#{actualResult},</if>
+            <if test="voucherUrl != null">#{voucherUrl},</if>
+            <if test="fillNote != null">#{fillNote},</if>
+            <if test="fillTime != null">#{fillTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateManualResult" parameterType="ManualResult">
+        update t_manual_result
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bizType != null">biz_type = #{bizType},</if>
+            <if test="bizId != null">biz_id = #{bizId},</if>
+            <if test="fillBy != null and fillBy != ''">fill_by = #{fillBy},</if>
+            <if test="actualResult != null">actual_result = #{actualResult},</if>
+            <if test="voucherUrl != null">voucher_url = #{voucherUrl},</if>
+            <if test="fillNote != null">fill_note = #{fillNote},</if>
+            <if test="fillTime != null">fill_time = #{fillTime},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where result_id = #{resultId}
+    </update>
+
+    <delete id="deleteManualResultByResultId" parameterType="Long">
+        delete from t_manual_result where result_id = #{resultId}
+    </delete>
+
+    <delete id="deleteManualResultByResultIds" parameterType="String">
+        delete from t_manual_result where result_id in 
+        <foreach item="resultId" collection="array" open="(" separator="," close=")">
+            #{resultId}
+        </foreach>
+    </delete>
+</mapper>

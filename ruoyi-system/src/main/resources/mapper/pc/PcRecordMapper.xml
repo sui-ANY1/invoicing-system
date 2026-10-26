@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.pc.mapper.PcRecordMapper">
+
+    <!-- D04 开票与红字统一记录（合并分页，申请与发票不混为一谈，金额取票面回传值） -->
+    <select id="selectRecordList" resultType="com.ruoyi.system.pc.vo.PcRecordItemVO">
+        select * from (
+            select '1' as type, a.apply_id as bizId, a.apply_no as bizNo,
+                   a.enterprise_id as enterpriseId, e.enterprise_name as enterpriseName,
+                   a.buyer_name as buyerName, a.buyer_tax_number as buyerTaxNumber,
+                   a.invoice_type as invoiceType, null as redReason,
+                   a.apply_status as status, null as confirmStatus,
+                   (select i.total_price_tax from t_invoice i
+                     where i.del_flag = '0' and i.apply_id = a.apply_id
+                     order by i.invoice_id desc limit 1) as amountDisplay,
+                   (select count(1) from t_invoice i where i.del_flag = '0' and i.apply_id = a.apply_id) as ticketCount,
+                   a.fail_reason as failReason, a.create_time as createTime, a.update_time as updateTime
+              from t_invoice_apply a
+              left join t_enterprise e on e.enterprise_id = a.enterprise_id
+             where a.del_flag = '0'
+            union all
+            select '2' as type, r.red_apply_id as bizId, r.red_apply_no as bizNo,
+                   o.enterprise_id as enterpriseId, e.enterprise_name as enterpriseName,
+                   o.buyer_name as buyerName, o.buyer_tax_number as buyerTaxNumber,
+                   null as invoiceType, r.red_reason as redReason,
+                   r.red_status as status, r.confirm_status as confirmStatus,
+                   (select i.total_price_tax from t_invoice i
+                     where i.del_flag = '0' and i.red_apply_id = r.red_apply_id
+                     order by i.invoice_id desc limit 1) as amountDisplay,
+                   (select count(1) from t_invoice i where i.del_flag = '0' and i.red_apply_id = r.red_apply_id) as ticketCount,
+                   r.fail_reason as failReason, r.create_time as createTime, r.update_time as updateTime
+              from t_red_apply r
+              left join t_invoice o on o.invoice_id = r.original_invoice_id
+              left join t_enterprise e on e.enterprise_id = o.enterprise_id
+             where r.del_flag = '0'
+        ) rec
+        <where>
+            <if test="q.type != null and q.type != ''">and rec.type = #{q.type}</if>
+            <if test="q.status != null and q.status != ''">and rec.status = #{q.status}</if>
+            <if test="q.enterpriseId != null">and rec.enterpriseId = #{q.enterpriseId}</if>
+            <if test="q.enterpriseName != null and q.enterpriseName != ''">
+                and rec.enterpriseName like concat('%', #{q.enterpriseName}, '%')
+            </if>
+            <if test="q.buyerName != null and q.buyerName != ''">
+                and rec.buyerName like concat('%', #{q.buyerName}, '%')
+            </if>
+            <if test="q.invoiceType != null and q.invoiceType != ''">and rec.invoiceType = #{q.invoiceType}</if>
+            <if test="q.applyNo != null and q.applyNo != ''">and rec.bizNo like concat('%', #{q.applyNo}, '%')</if>
+            <if test="q.invoiceNo != null and q.invoiceNo != ''">
+                and exists (select 1 from t_invoice i2
+                             where i2.del_flag = '0'
+                               and i2.invoice_no like concat('%', #{q.invoiceNo}, '%')
+                               and ((rec.type = '1' and i2.apply_id = rec.bizId)
+                                    or (rec.type = '2' and i2.red_apply_id = rec.bizId)))
+            </if>
+            <if test="q.startTime != null and q.startTime != ''">and rec.createTime &gt;= #{q.startTime}</if>
+            <if test="q.endTime != null and q.endTime != ''">and rec.createTime &lt;= #{q.endTime}</if>
+        </where>
+        order by rec.createTime desc
+    </select>
+
+</mapper>

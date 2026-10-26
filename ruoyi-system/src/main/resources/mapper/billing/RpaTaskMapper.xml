@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RpaTaskMapper">
+    
+    <resultMap type="RpaTask" id="RpaTaskResult">
+        <result property="taskId"    column="task_id"    />
+        <result property="taskNo"    column="task_no"    />
+        <result property="bizType"    column="biz_type"    />
+        <result property="bizId"    column="biz_id"    />
+        <result property="rpaTaskNo"    column="rpa_task_no"    />
+        <result property="taskStatus"    column="task_status"    />
+        <result property="nextQueryTime"    column="next_query_time"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectRpaTaskVo">
+        select task_id, task_no, biz_type, biz_id, rpa_task_no, task_status, next_query_time, fail_reason, create_time, update_time, remark from t_rpa_task
+    </sql>
+
+    <select id="selectRpaTaskList" parameterType="RpaTask" resultMap="RpaTaskResult">
+        <include refid="selectRpaTaskVo"/>
+        <where>  
+            <if test="taskNo != null  and taskNo != ''"> and task_no = #{taskNo}</if>
+            <if test="bizType != null  and bizType != ''"> and biz_type = #{bizType}</if>
+            <if test="bizId != null "> and biz_id = #{bizId}</if>
+            <if test="rpaTaskNo != null  and rpaTaskNo != ''"> and rpa_task_no = #{rpaTaskNo}</if>
+            <if test="taskStatus != null  and taskStatus != ''"> and task_status = #{taskStatus}</if>
+            <if test="nextQueryTime != null "> and next_query_time = #{nextQueryTime}</if>
+            <if test="failReason != null  and failReason != ''"> and fail_reason = #{failReason}</if>
+        </where>
+    </select>
+    
+    <select id="selectRpaTaskByTaskId" parameterType="Long" resultMap="RpaTaskResult">
+        <include refid="selectRpaTaskVo"/>
+        where task_id = #{taskId}
+    </select>
+
+    <insert id="insertRpaTask" parameterType="RpaTask" useGeneratedKeys="true" keyProperty="taskId">
+        insert into t_rpa_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskNo != null and taskNo != ''">task_no,</if>
+            <if test="bizType != null">biz_type,</if>
+            <if test="bizId != null">biz_id,</if>
+            <if test="rpaTaskNo != null">rpa_task_no,</if>
+            <if test="taskStatus != null">task_status,</if>
+            <if test="nextQueryTime != null">next_query_time,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskNo != null and taskNo != ''">#{taskNo},</if>
+            <if test="bizType != null">#{bizType},</if>
+            <if test="bizId != null">#{bizId},</if>
+            <if test="rpaTaskNo != null">#{rpaTaskNo},</if>
+            <if test="taskStatus != null">#{taskStatus},</if>
+            <if test="nextQueryTime != null">#{nextQueryTime},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRpaTask" parameterType="RpaTask">
+        update t_rpa_task
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskNo != null and taskNo != ''">task_no = #{taskNo},</if>
+            <if test="bizType != null">biz_type = #{bizType},</if>
+            <if test="bizId != null">biz_id = #{bizId},</if>
+            <if test="rpaTaskNo != null">rpa_task_no = #{rpaTaskNo},</if>
+            <if test="taskStatus != null">task_status = #{taskStatus},</if>
+            <if test="nextQueryTime != null">next_query_time = #{nextQueryTime},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where task_id = #{taskId}
+    </update>
+
+    <delete id="deleteRpaTaskByTaskId" parameterType="Long">
+        delete from t_rpa_task where task_id = #{taskId}
+    </delete>
+
+    <delete id="deleteRpaTaskByTaskIds" parameterType="String">
+        delete from t_rpa_task where task_id in 
+        <foreach item="taskId" collection="array" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </delete>
+</mapper>

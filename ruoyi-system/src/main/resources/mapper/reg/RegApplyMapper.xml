@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RegApplyMapper">
+    
+    <resultMap type="RegApply" id="RegApplyResult">
+        <result property="regApplyId"    column="reg_apply_id"    />
+        <result property="regApplyNo"    column="reg_apply_no"    />
+        <result property="subjectType"    column="subject_type"    />
+        <result property="contactName"    column="contact_name"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="completeStatus"    column="complete_status"    />
+        <result property="completeBy"    column="complete_by"    />
+        <result property="completeTime"    column="complete_time"    />
+        <result property="completeRemark"    column="complete_remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectRegApplyVo">
+        select reg_apply_id, reg_apply_no, subject_type, contact_name, contact_phone, member_id, complete_status, complete_by, complete_time, complete_remark, del_flag, create_by, create_time, update_by, update_time, remark from t_reg_apply
+    </sql>
+
+    <select id="selectRegApplyList" parameterType="RegApply" resultMap="RegApplyResult">
+        <include refid="selectRegApplyVo"/>
+        <where>  
+            <if test="regApplyNo != null  and regApplyNo != ''"> and reg_apply_no like concat('%', #{regApplyNo}, '%')</if>
+            <if test="subjectType != null  and subjectType != ''"> and subject_type = #{subjectType}</if>
+            <if test="contactName != null  and contactName != ''"> and contact_name like concat('%', #{contactName}, '%')</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+            <if test="memberId != null "> and member_id = #{memberId}</if>
+            <if test="completeStatus != null  and completeStatus != ''"> and complete_status = #{completeStatus}</if>
+            <if test="completeBy != null  and completeBy != ''"> and complete_by = #{completeBy}</if>
+            <if test="completeTime != null "> and complete_time = #{completeTime}</if>
+            <if test="completeRemark != null  and completeRemark != ''"> and complete_remark = #{completeRemark}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"> and date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')</if>
+            <if test="params.endTime != null and params.endTime != ''"> and date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')</if>
+            <if test="params.companyName != null and params.companyName != ''">
+                and (
+                    exists (select 1 from t_reg_company c where c.reg_apply_id = t_reg_apply.reg_apply_id
+                            and c.proposed_name like concat('%', #{params.companyName}, '%'))
+                    or exists (select 1 from t_reg_sole s where s.reg_apply_id = t_reg_apply.reg_apply_id
+                            and s.proposed_name like concat('%', #{params.companyName}, '%'))
+                )
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectRegApplyByRegApplyId" parameterType="Long" resultMap="RegApplyResult">
+        <include refid="selectRegApplyVo"/>
+        where reg_apply_id = #{regApplyId}
+    </select>
+
+    <insert id="insertRegApply" parameterType="RegApply" useGeneratedKeys="true" keyProperty="regApplyId">
+        insert into t_reg_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regApplyNo != null and regApplyNo != ''">reg_apply_no,</if>
+            <if test="subjectType != null">subject_type,</if>
+            <if test="contactName != null">contact_name,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="memberId != null">member_id,</if>
+            <if test="completeStatus != null">complete_status,</if>
+            <if test="completeBy != null">complete_by,</if>
+            <if test="completeTime != null">complete_time,</if>
+            <if test="completeRemark != null">complete_remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regApplyNo != null and regApplyNo != ''">#{regApplyNo},</if>
+            <if test="subjectType != null">#{subjectType},</if>
+            <if test="contactName != null">#{contactName},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="memberId != null">#{memberId},</if>
+            <if test="completeStatus != null">#{completeStatus},</if>
+            <if test="completeBy != null">#{completeBy},</if>
+            <if test="completeTime != null">#{completeTime},</if>
+            <if test="completeRemark != null">#{completeRemark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRegApply" parameterType="RegApply">
+        update t_reg_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="regApplyNo != null and regApplyNo != ''">reg_apply_no = #{regApplyNo},</if>
+            <if test="subjectType != null">subject_type = #{subjectType},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="completeStatus != null">complete_status = #{completeStatus},</if>
+            <if test="completeBy != null">complete_by = #{completeBy},</if>
+            <if test="completeTime != null">complete_time = #{completeTime},</if>
+            <if test="completeRemark != null">complete_remark = #{completeRemark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where reg_apply_id = #{regApplyId}
+    </update>
+
+    <delete id="deleteRegApplyByRegApplyId" parameterType="Long">
+        delete from t_reg_apply where reg_apply_id = #{regApplyId}
+    </delete>
+
+    <delete id="deleteRegApplyByRegApplyIds" parameterType="String">
+        delete from t_reg_apply where reg_apply_id in 
+        <foreach item="regApplyId" collection="array" open="(" separator="," close=")">
+            #{regApplyId}
+        </foreach>
+    </delete>
+</mapper>

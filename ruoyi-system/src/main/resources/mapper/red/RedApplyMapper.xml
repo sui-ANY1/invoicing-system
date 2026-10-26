@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RedApplyMapper">
+    
+    <resultMap type="RedApply" id="RedApplyResult">
+        <result property="redApplyId"    column="red_apply_id"    />
+        <result property="redApplyNo"    column="red_apply_no"    />
+        <result property="originalInvoiceId"    column="original_invoice_id"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="redReason"    column="red_reason"    />
+        <result property="redRange"    column="red_range"    />
+        <result property="redStatus"    column="red_status"    />
+        <result property="confirmStatus"    column="confirm_status"    />
+        <result property="confirmStartTime"    column="confirm_start_time"    />
+        <result property="confirmExpireTime"    column="confirm_expire_time"    />
+        <result property="description"    column="description"    />
+        <result property="proofUrl"    column="proof_url"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRedApplyVo">
+        select red_apply_id, red_apply_no, original_invoice_id, member_id, red_reason, red_range, red_status, confirm_status, confirm_start_time, confirm_expire_time, description, proof_url, fail_reason, del_flag, create_by, create_time, update_by, update_time from t_red_apply
+    </sql>
+
+    <select id="selectRedApplyList" parameterType="RedApply" resultMap="RedApplyResult">
+        <include refid="selectRedApplyVo"/>
+        <where>  
+            <if test="redApplyNo != null  and redApplyNo != ''"> and red_apply_no = #{redApplyNo}</if>
+            <if test="originalInvoiceId != null "> and original_invoice_id = #{originalInvoiceId}</if>
+            <if test="memberId != null "> and member_id = #{memberId}</if>
+            <if test="redReason != null  and redReason != ''"> and red_reason = #{redReason}</if>
+            <if test="redRange != null  and redRange != ''"> and red_range = #{redRange}</if>
+            <if test="redStatus != null  and redStatus != ''"> and red_status = #{redStatus}</if>
+            <if test="confirmStatus != null  and confirmStatus != ''"> and confirm_status = #{confirmStatus}</if>
+            <if test="confirmStartTime != null "> and confirm_start_time = #{confirmStartTime}</if>
+            <if test="confirmExpireTime != null "> and confirm_expire_time = #{confirmExpireTime}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="proofUrl != null  and proofUrl != ''"> and proof_url = #{proofUrl}</if>
+            <if test="failReason != null  and failReason != ''"> and fail_reason = #{failReason}</if>
+        </where>
+    </select>
+    
+    <select id="selectRedApplyByRedApplyId" parameterType="Long" resultMap="RedApplyResult">
+        <include refid="selectRedApplyVo"/>
+        where red_apply_id = #{redApplyId}
+    </select>
+
+    <insert id="insertRedApply" parameterType="RedApply" useGeneratedKeys="true" keyProperty="redApplyId">
+        insert into t_red_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="redApplyNo != null and redApplyNo != ''">red_apply_no,</if>
+            <if test="originalInvoiceId != null">original_invoice_id,</if>
+            <if test="memberId != null">member_id,</if>
+            <if test="redReason != null">red_reason,</if>
+            <if test="redRange != null">red_range,</if>
+            <if test="redStatus != null">red_status,</if>
+            <if test="confirmStatus != null">confirm_status,</if>
+            <if test="confirmStartTime != null">confirm_start_time,</if>
+            <if test="confirmExpireTime != null">confirm_expire_time,</if>
+            <if test="description != null">description,</if>
+            <if test="proofUrl != null">proof_url,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="redApplyNo != null and redApplyNo != ''">#{redApplyNo},</if>
+            <if test="originalInvoiceId != null">#{originalInvoiceId},</if>
+            <if test="memberId != null">#{memberId},</if>
+            <if test="redReason != null">#{redReason},</if>
+            <if test="redRange != null">#{redRange},</if>
+            <if test="redStatus != null">#{redStatus},</if>
+            <if test="confirmStatus != null">#{confirmStatus},</if>
+            <if test="confirmStartTime != null">#{confirmStartTime},</if>
+            <if test="confirmExpireTime != null">#{confirmExpireTime},</if>
+            <if test="description != null">#{description},</if>
+            <if test="proofUrl != null">#{proofUrl},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRedApply" parameterType="RedApply">
+        update t_red_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="redApplyNo != null and redApplyNo != ''">red_apply_no = #{redApplyNo},</if>
+            <if test="originalInvoiceId != null">original_invoice_id = #{originalInvoiceId},</if>
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="redReason != null">red_reason = #{redReason},</if>
+            <if test="redRange != null">red_range = #{redRange},</if>
+            <if test="redStatus != null">red_status = #{redStatus},</if>
+            <if test="confirmStatus != null">confirm_status = #{confirmStatus},</if>
+            <if test="confirmStartTime != null">confirm_start_time = #{confirmStartTime},</if>
+            <if test="confirmExpireTime != null">confirm_expire_time = #{confirmExpireTime},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="proofUrl != null">proof_url = #{proofUrl},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where red_apply_id = #{redApplyId}
+    </update>
+
+    <delete id="deleteRedApplyByRedApplyId" parameterType="Long">
+        delete from t_red_apply where red_apply_id = #{redApplyId}
+    </delete>
+
+    <delete id="deleteRedApplyByRedApplyIds" parameterType="String">
+        delete from t_red_apply where red_apply_id in 
+        <foreach item="redApplyId" collection="array" open="(" separator="," close=")">
+            #{redApplyId}
+        </foreach>
+    </delete>
+</mapper>

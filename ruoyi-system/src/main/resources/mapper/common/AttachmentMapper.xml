@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AttachmentMapper">
+    
+    <resultMap type="Attachment" id="AttachmentResult">
+        <result property="attachmentId"    column="attachment_id"    />
+        <result property="bizType"    column="biz_type"    />
+        <result property="bizId"    column="biz_id"    />
+        <result property="materialType"    column="material_type"    />
+        <result property="refKey"    column="ref_key"    />
+        <result property="fileType"    column="file_type"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="fileUrl"    column="file_url"    />
+        <result property="fileSize"    column="file_size"    />
+        <result property="uploadBy"    column="upload_by"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectAttachmentVo">
+        select attachment_id, biz_type, biz_id, material_type, ref_key, file_type, file_name, file_url, file_size, upload_by, del_flag, create_time from t_attachment
+    </sql>
+
+    <select id="selectAttachmentList" parameterType="Attachment" resultMap="AttachmentResult">
+        <include refid="selectAttachmentVo"/>
+        <where>  
+            <if test="bizType != null  and bizType != ''"> and biz_type = #{bizType}</if>
+            <if test="bizId != null "> and biz_id = #{bizId}</if>
+            <if test="materialType != null  and materialType != ''"> and material_type = #{materialType}</if>
+            <if test="refKey != null  and refKey != ''"> and ref_key = #{refKey}</if>
+            <if test="fileType != null  and fileType != ''"> and file_type = #{fileType}</if>
+            <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
+            <if test="fileUrl != null  and fileUrl != ''"> and file_url = #{fileUrl}</if>
+            <if test="fileSize != null "> and file_size = #{fileSize}</if>
+            <if test="uploadBy != null  and uploadBy != ''"> and upload_by = #{uploadBy}</if>
+            <if test="delFlag != null  and delFlag != ''"> and del_flag = #{delFlag}</if>
+        </where>
+        order by attachment_id asc
+    </select>
+    
+    <select id="selectAttachmentByAttachmentId" parameterType="Long" resultMap="AttachmentResult">
+        <include refid="selectAttachmentVo"/>
+        where attachment_id = #{attachmentId}
+    </select>
+
+    <insert id="insertAttachment" parameterType="Attachment" useGeneratedKeys="true" keyProperty="attachmentId">
+        insert into t_attachment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bizType != null and bizType != ''">biz_type,</if>
+            <if test="bizId != null">biz_id,</if>
+            <if test="materialType != null and materialType != ''">material_type,</if>
+            <if test="refKey != null">ref_key,</if>
+            <if test="fileType != null">file_type,</if>
+            <if test="fileName != null">file_name,</if>
+            <if test="fileUrl != null and fileUrl != ''">file_url,</if>
+            <if test="fileSize != null">file_size,</if>
+            <if test="uploadBy != null">upload_by,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bizType != null and bizType != ''">#{bizType},</if>
+            <if test="bizId != null">#{bizId},</if>
+            <if test="materialType != null and materialType != ''">#{materialType},</if>
+            <if test="refKey != null">#{refKey},</if>
+            <if test="fileType != null">#{fileType},</if>
+            <if test="fileName != null">#{fileName},</if>
+            <if test="fileUrl != null and fileUrl != ''">#{fileUrl},</if>
+            <if test="fileSize != null">#{fileSize},</if>
+            <if test="uploadBy != null">#{uploadBy},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAttachment" parameterType="Attachment">
+        update t_attachment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bizType != null and bizType != ''">biz_type = #{bizType},</if>
+            <if test="bizId != null">biz_id = #{bizId},</if>
+            <if test="materialType != null and materialType != ''">material_type = #{materialType},</if>
+            <if test="refKey != null">ref_key = #{refKey},</if>
+            <if test="fileType != null">file_type = #{fileType},</if>
+            <if test="fileName != null">file_name = #{fileName},</if>
+            <if test="fileUrl != null and fileUrl != ''">file_url = #{fileUrl},</if>
+            <if test="fileSize != null">file_size = #{fileSize},</if>
+            <if test="uploadBy != null">upload_by = #{uploadBy},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where attachment_id = #{attachmentId}
+    </update>
+
+    <delete id="deleteAttachmentByAttachmentId" parameterType="Long">
+        delete from t_attachment where attachment_id = #{attachmentId}
+    </delete>
+
+    <delete id="deleteAttachmentByAttachmentIds" parameterType="String">
+        delete from t_attachment where attachment_id in 
+        <foreach item="attachmentId" collection="array" open="(" separator="," close=")">
+            #{attachmentId}
+        </foreach>
+    </delete>
+</mapper>

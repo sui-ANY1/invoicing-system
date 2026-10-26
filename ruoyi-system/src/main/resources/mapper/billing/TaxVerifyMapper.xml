@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.TaxVerifyMapper">
+    
+    <resultMap type="TaxVerify" id="TaxVerifyResult">
+        <result property="verifyId"    column="verify_id"    />
+        <result property="bizType"    column="biz_type"    />
+        <result property="bizId"    column="biz_id"    />
+        <result property="verifyType"    column="verify_type"    />
+        <result property="targetAccount"    column="target_account"    />
+        <result property="verifyKey"    column="verify_key"    />
+        <result property="verifyStatus"    column="verify_status"    />
+        <result property="expireTime"    column="expire_time"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectTaxVerifyVo">
+        select verify_id, biz_type, biz_id, verify_type, target_account, verify_key, verify_status, expire_time, create_time, update_time from t_tax_verify
+    </sql>
+
+    <select id="selectTaxVerifyList" parameterType="TaxVerify" resultMap="TaxVerifyResult">
+        <include refid="selectTaxVerifyVo"/>
+        <where>  
+            <if test="bizType != null  and bizType != ''"> and biz_type = #{bizType}</if>
+            <if test="bizId != null "> and biz_id = #{bizId}</if>
+            <if test="verifyType != null  and verifyType != ''"> and verify_type = #{verifyType}</if>
+            <if test="targetAccount != null  and targetAccount != ''"> and target_account = #{targetAccount}</if>
+            <if test="verifyKey != null  and verifyKey != ''"> and verify_key = #{verifyKey}</if>
+            <if test="verifyStatus != null  and verifyStatus != ''"> and verify_status = #{verifyStatus}</if>
+            <if test="expireTime != null "> and expire_time = #{expireTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectTaxVerifyByVerifyId" parameterType="Long" resultMap="TaxVerifyResult">
+        <include refid="selectTaxVerifyVo"/>
+        where verify_id = #{verifyId}
+    </select>
+
+    <insert id="insertTaxVerify" parameterType="TaxVerify" useGeneratedKeys="true" keyProperty="verifyId">
+        insert into t_tax_verify
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bizType != null">biz_type,</if>
+            <if test="bizId != null">biz_id,</if>
+            <if test="verifyType != null">verify_type,</if>
+            <if test="targetAccount != null">target_account,</if>
+            <if test="verifyKey != null">verify_key,</if>
+            <if test="verifyStatus != null">verify_status,</if>
+            <if test="expireTime != null">expire_time,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bizType != null">#{bizType},</if>
+            <if test="bizId != null">#{bizId},</if>
+            <if test="verifyType != null">#{verifyType},</if>
+            <if test="targetAccount != null">#{targetAccount},</if>
+            <if test="verifyKey != null">#{verifyKey},</if>
+            <if test="verifyStatus != null">#{verifyStatus},</if>
+            <if test="expireTime != null">#{expireTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTaxVerify" parameterType="TaxVerify">
+        update t_tax_verify
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bizType != null">biz_type = #{bizType},</if>
+            <if test="bizId != null">biz_id = #{bizId},</if>
+            <if test="verifyType != null">verify_type = #{verifyType},</if>
+            <if test="targetAccount != null">target_account = #{targetAccount},</if>
+            <if test="verifyKey != null">verify_key = #{verifyKey},</if>
+            <if test="verifyStatus != null">verify_status = #{verifyStatus},</if>
+            <if test="expireTime != null">expire_time = #{expireTime},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where verify_id = #{verifyId}
+    </update>
+
+    <delete id="deleteTaxVerifyByVerifyId" parameterType="Long">
+        delete from t_tax_verify where verify_id = #{verifyId}
+    </delete>
+
+    <delete id="deleteTaxVerifyByVerifyIds" parameterType="String">
+        delete from t_tax_verify where verify_id in 
+        <foreach item="verifyId" collection="array" open="(" separator="," close=")">
+            #{verifyId}
+        </foreach>
+    </delete>
+</mapper>

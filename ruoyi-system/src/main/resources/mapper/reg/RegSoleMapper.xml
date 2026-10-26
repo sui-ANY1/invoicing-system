@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.RegSoleMapper">
+    
+    <resultMap type="RegSole" id="RegSoleResult">
+        <result property="soleId"    column="sole_id"    />
+        <result property="regApplyId"    column="reg_apply_id"    />
+        <result property="handleIdentity"    column="handle_identity"    />
+        <result property="operatorName"    column="operator_name"    />
+        <result property="operatorIdType"    column="operator_id_type"    />
+        <result property="operatorIdCard"    column="operator_id_card"    />
+        <result property="operatorPhone"    column="operator_phone"    />
+        <result property="operatorAddress"    column="operator_address"    />
+        <result property="businessForm"    column="business_form"    />
+        <result property="familyMembers"    column="family_members"    />
+        <result property="proposedName"    column="proposed_name"    />
+        <result property="businessScope"    column="business_scope"    />
+        <result property="premisesType"    column="premises_type"    />
+        <result property="premisesAddress"    column="premises_address"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectRegSoleVo">
+        select sole_id, reg_apply_id, handle_identity, operator_name, operator_id_type, operator_id_card, operator_phone, operator_address, business_form, family_members, proposed_name, business_scope, premises_type, premises_address, create_time, update_time from t_reg_sole
+    </sql>
+
+    <select id="selectRegSoleList" parameterType="RegSole" resultMap="RegSoleResult">
+        <include refid="selectRegSoleVo"/>
+        <where>  
+            <if test="regApplyId != null "> and reg_apply_id = #{regApplyId}</if>
+            <if test="handleIdentity != null  and handleIdentity != ''"> and handle_identity = #{handleIdentity}</if>
+            <if test="operatorName != null  and operatorName != ''"> and operator_name like concat('%', #{operatorName}, '%')</if>
+            <if test="operatorIdType != null  and operatorIdType != ''"> and operator_id_type = #{operatorIdType}</if>
+            <if test="operatorIdCard != null  and operatorIdCard != ''"> and operator_id_card = #{operatorIdCard}</if>
+            <if test="operatorPhone != null  and operatorPhone != ''"> and operator_phone = #{operatorPhone}</if>
+            <if test="operatorAddress != null  and operatorAddress != ''"> and operator_address = #{operatorAddress}</if>
+            <if test="businessForm != null  and businessForm != ''"> and business_form = #{businessForm}</if>
+            <if test="familyMembers != null  and familyMembers != ''"> and family_members = #{familyMembers}</if>
+            <if test="proposedName != null  and proposedName != ''"> and proposed_name like concat('%', #{proposedName}, '%')</if>
+            <if test="businessScope != null  and businessScope != ''"> and business_scope = #{businessScope}</if>
+            <if test="premisesType != null  and premisesType != ''"> and premises_type = #{premisesType}</if>
+            <if test="premisesAddress != null  and premisesAddress != ''"> and premises_address = #{premisesAddress}</if>
+        </where>
+    </select>
+    
+    <select id="selectRegSoleBySoleId" parameterType="Long" resultMap="RegSoleResult">
+        <include refid="selectRegSoleVo"/>
+        where sole_id = #{soleId}
+    </select>
+
+    <insert id="insertRegSole" parameterType="RegSole" useGeneratedKeys="true" keyProperty="soleId">
+        insert into t_reg_sole
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regApplyId != null">reg_apply_id,</if>
+            <if test="handleIdentity != null">handle_identity,</if>
+            <if test="operatorName != null">operator_name,</if>
+            <if test="operatorIdType != null">operator_id_type,</if>
+            <if test="operatorIdCard != null">operator_id_card,</if>
+            <if test="operatorPhone != null">operator_phone,</if>
+            <if test="operatorAddress != null">operator_address,</if>
+            <if test="businessForm != null">business_form,</if>
+            <if test="familyMembers != null">family_members,</if>
+            <if test="proposedName != null">proposed_name,</if>
+            <if test="businessScope != null">business_scope,</if>
+            <if test="premisesType != null">premises_type,</if>
+            <if test="premisesAddress != null">premises_address,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regApplyId != null">#{regApplyId},</if>
+            <if test="handleIdentity != null">#{handleIdentity},</if>
+            <if test="operatorName != null">#{operatorName},</if>
+            <if test="operatorIdType != null">#{operatorIdType},</if>
+            <if test="operatorIdCard != null">#{operatorIdCard},</if>
+            <if test="operatorPhone != null">#{operatorPhone},</if>
+            <if test="operatorAddress != null">#{operatorAddress},</if>
+            <if test="businessForm != null">#{businessForm},</if>
+            <if test="familyMembers != null">#{familyMembers},</if>
+            <if test="proposedName != null">#{proposedName},</if>
+            <if test="businessScope != null">#{businessScope},</if>
+            <if test="premisesType != null">#{premisesType},</if>
+            <if test="premisesAddress != null">#{premisesAddress},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRegSole" parameterType="RegSole">
+        update t_reg_sole
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="regApplyId != null">reg_apply_id = #{regApplyId},</if>
+            <if test="handleIdentity != null">handle_identity = #{handleIdentity},</if>
+            <if test="operatorName != null">operator_name = #{operatorName},</if>
+            <if test="operatorIdType != null">operator_id_type = #{operatorIdType},</if>
+            <if test="operatorIdCard != null">operator_id_card = #{operatorIdCard},</if>
+            <if test="operatorPhone != null">operator_phone = #{operatorPhone},</if>
+            <if test="operatorAddress != null">operator_address = #{operatorAddress},</if>
+            <if test="businessForm != null">business_form = #{businessForm},</if>
+            <if test="familyMembers != null">family_members = #{familyMembers},</if>
+            <if test="proposedName != null">proposed_name = #{proposedName},</if>
+            <if test="businessScope != null">business_scope = #{businessScope},</if>
+            <if test="premisesType != null">premises_type = #{premisesType},</if>
+            <if test="premisesAddress != null">premises_address = #{premisesAddress},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where sole_id = #{soleId}
+    </update>
+
+    <delete id="deleteRegSoleBySoleId" parameterType="Long">
+        delete from t_reg_sole where sole_id = #{soleId}
+    </delete>
+
+    <delete id="deleteRegSoleBySoleIds" parameterType="String">
+        delete from t_reg_sole where sole_id in 
+        <foreach item="soleId" collection="array" open="(" separator="," close=")">
+            #{soleId}
+        </foreach>
+    </delete>
+</mapper>

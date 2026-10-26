@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.InvoiceApplyMapper">
+    
+    <resultMap type="InvoiceApply" id="InvoiceApplyResult">
+        <result property="applyId"    column="apply_id"    />
+        <result property="applyNo"    column="apply_no"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="enterpriseId"    column="enterprise_id"    />
+        <result property="invoiceType"    column="invoice_type"    />
+        <result property="buyerType"    column="buyer_type"    />
+        <result property="buyerName"    column="buyer_name"    />
+        <result property="buyerTaxNumber"    column="buyer_tax_number"    />
+        <result property="buyerAddressPhone"    column="buyer_address_phone"    />
+        <result property="buyerBank"    column="buyer_bank"    />
+        <result property="dealProof"    column="deal_proof"    />
+        <result property="receiveEmail"    column="receive_email"    />
+        <result property="remark"    column="remark"    />
+        <result property="applyStatus"    column="apply_status"    />
+        <result property="failReason"    column="fail_reason"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectInvoiceApplyVo">
+        select apply_id, apply_no, member_id, enterprise_id, invoice_type, buyer_type, buyer_name, buyer_tax_number, buyer_address_phone, buyer_bank, deal_proof, receive_email, remark, apply_status, fail_reason, del_flag, create_by, create_time, update_by, update_time from t_invoice_apply
+    </sql>
+
+    <select id="selectInvoiceApplyList" parameterType="InvoiceApply" resultMap="InvoiceApplyResult">
+        <include refid="selectInvoiceApplyVo"/>
+        <where>  
+            <if test="applyNo != null  and applyNo != ''"> and apply_no = #{applyNo}</if>
+            <if test="memberId != null "> and member_id = #{memberId}</if>
+            <if test="enterpriseId != null "> and enterprise_id = #{enterpriseId}</if>
+            <if test="invoiceType != null  and invoiceType != ''"> and invoice_type = #{invoiceType}</if>
+            <if test="buyerType != null  and buyerType != ''"> and buyer_type = #{buyerType}</if>
+            <if test="buyerName != null  and buyerName != ''"> and buyer_name like concat('%', #{buyerName}, '%')</if>
+            <if test="buyerTaxNumber != null  and buyerTaxNumber != ''"> and buyer_tax_number = #{buyerTaxNumber}</if>
+            <if test="buyerAddressPhone != null  and buyerAddressPhone != ''"> and buyer_address_phone = #{buyerAddressPhone}</if>
+            <if test="buyerBank != null  and buyerBank != ''"> and buyer_bank = #{buyerBank}</if>
+            <if test="dealProof != null  and dealProof != ''"> and deal_proof = #{dealProof}</if>
+            <if test="receiveEmail != null  and receiveEmail != ''"> and receive_email = #{receiveEmail}</if>
+            <if test="applyStatus != null  and applyStatus != ''"> and apply_status = #{applyStatus}</if>
+            <if test="failReason != null  and failReason != ''"> and fail_reason = #{failReason}</if>
+        </where>
+    </select>
+    
+    <select id="selectInvoiceApplyByApplyId" parameterType="Long" resultMap="InvoiceApplyResult">
+        <include refid="selectInvoiceApplyVo"/>
+        where apply_id = #{applyId}
+    </select>
+
+    <insert id="insertInvoiceApply" parameterType="InvoiceApply" useGeneratedKeys="true" keyProperty="applyId">
+        insert into t_invoice_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="applyNo != null and applyNo != ''">apply_no,</if>
+            <if test="memberId != null">member_id,</if>
+            <if test="enterpriseId != null">enterprise_id,</if>
+            <if test="invoiceType != null">invoice_type,</if>
+            <if test="buyerType != null">buyer_type,</if>
+            <if test="buyerName != null and buyerName != ''">buyer_name,</if>
+            <if test="buyerTaxNumber != null">buyer_tax_number,</if>
+            <if test="buyerAddressPhone != null">buyer_address_phone,</if>
+            <if test="buyerBank != null">buyer_bank,</if>
+            <if test="dealProof != null">deal_proof,</if>
+            <if test="receiveEmail != null">receive_email,</if>
+            <if test="remark != null">remark,</if>
+            <if test="applyStatus != null">apply_status,</if>
+            <if test="failReason != null">fail_reason,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyNo != null and applyNo != ''">#{applyNo},</if>
+            <if test="memberId != null">#{memberId},</if>
+            <if test="enterpriseId != null">#{enterpriseId},</if>
+            <if test="invoiceType != null">#{invoiceType},</if>
+            <if test="buyerType != null">#{buyerType},</if>
+            <if test="buyerName != null and buyerName != ''">#{buyerName},</if>
+            <if test="buyerTaxNumber != null">#{buyerTaxNumber},</if>
+            <if test="buyerAddressPhone != null">#{buyerAddressPhone},</if>
+            <if test="buyerBank != null">#{buyerBank},</if>
+            <if test="dealProof != null">#{dealProof},</if>
+            <if test="receiveEmail != null">#{receiveEmail},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="applyStatus != null">#{applyStatus},</if>
+            <if test="failReason != null">#{failReason},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateInvoiceApply" parameterType="InvoiceApply">
+        update t_invoice_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="applyNo != null and applyNo != ''">apply_no = #{applyNo},</if>
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="enterpriseId != null">enterprise_id = #{enterpriseId},</if>
+            <if test="invoiceType != null">invoice_type = #{invoiceType},</if>
+            <if test="buyerType != null">buyer_type = #{buyerType},</if>
+            <if test="buyerName != null and buyerName != ''">buyer_name = #{buyerName},</if>
+            <if test="buyerTaxNumber != null">buyer_tax_number = #{buyerTaxNumber},</if>
+            <if test="buyerAddressPhone != null">buyer_address_phone = #{buyerAddressPhone},</if>
+            <if test="buyerBank != null">buyer_bank = #{buyerBank},</if>
+            <if test="dealProof != null">deal_proof = #{dealProof},</if>
+            <if test="receiveEmail != null">receive_email = #{receiveEmail},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="applyStatus != null">apply_status = #{applyStatus},</if>
+            <if test="failReason != null">fail_reason = #{failReason},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where apply_id = #{applyId}
+    </update>
+
+    <delete id="deleteInvoiceApplyByApplyId" parameterType="Long">
+        delete from t_invoice_apply where apply_id = #{applyId}
+    </delete>
+
+    <delete id="deleteInvoiceApplyByApplyIds" parameterType="String">
+        delete from t_invoice_apply where apply_id in 
+        <foreach item="applyId" collection="array" open="(" separator="," close=")">
+            #{applyId}
+        </foreach>
+    </delete>
+</mapper>
